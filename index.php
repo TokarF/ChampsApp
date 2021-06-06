@@ -11,7 +11,9 @@ $routes = [
     // [method, útvonal, handlerFunction],
     ['GET', '/', 'homeHandler'],
 
-    ['GET', '/bajnoksag/{championshipId}', 'championshipHandler']
+    ['GET', '/bajnoksag/{championshipId}', 'championshipHandler'],
+    ['GET', '/uj-meccsek/{championshipId}', 'createMatchesFormHandler'],
+    ['POST', '/uj-meccsek/{championshipId}', 'addMatchesFormHandler'],
 
     // // Kategóriák
     // ['GET', '/kategoriak', 'categoriesHandler'],
@@ -80,9 +82,53 @@ function championshipHandler($urlParams)
             "players" => $players
         ]),
     ]);
+}
+
+function createMatchesFormHandler($urlParams)
+{
+    $pdo = getConnection();
+    $teams = getAllTeams($pdo);
+    echo render("wrapper.phtml", [
+        "content" => render("uj-meccsek.phtml", [
+            "championshipId" => $urlParams["championshipId"],
+            "teams" => $teams
+        ])
+    ]);
+}
+
+function addMatchesFormHandler($urlParams)
+{
+    $pdo = getConnection();
+    $players = getAllPlayersByChampionshipId($pdo, $urlParams["championshipId"]);
 
 
+    $hazaiCsapatok = $_POST["hazai"];
+    $vendegcsapatok = $_POST["vendeg"];
+    $csoportok = $_POST["csoport"];
+    $kezdesek = $_POST["kezdes"];
+    foreach ($hazaiCsapatok as $i => $hazai) {
+        // echo $hazai. " - " . $vendegcsapatok[$i] . " csoport: " . $csoportok[$i] . " kezdés: " . $kezdesek[$i];
+        // echo "<br>";
+        $stmt = $pdo->prepare("INSERT INTO meccsek (bajnoksagId, csoport, hazaiCsapatId, vendegCsapatId, kezdes, lejatszott) VALUES (:bajnoksagId, :csoport, :hazaiCsapatId, :vendegCsapatId, :kezdes, 0)");
+        $stmt->execute([
+            ":bajnoksagId" => $urlParams["championshipId"],
+            ":csoport" => $csoportok[$i],
+            ":hazaiCsapatId" => $hazai,
+            ":vendegCsapatId" => $vendegcsapatok[$i],
+            ":kezdes" => $kezdesek[$i],
+        ]);
 
+        $matchId = $pdo->lastInsertId();
+        foreach ($players as $player) {
+            $stmt = $pdo->prepare("INSERT INTO tippek (bajnoksagId, meccsId, jatekosId) VALUES (:bajnoksagId, :meccsId, :jatekosId)");
+            $stmt->execute([
+                ":bajnoksagId" => $urlParams["championshipId"],
+                ":meccsId" => $matchId,
+                ":jatekosId" => $player["id"]
+            ]);
+        };
+    };
+    header("Location: /bajnoksag/" .  $urlParams["championshipId"]);
 }
 
 function getAllChampionship($pdo)
@@ -111,7 +157,8 @@ function getChampionshpActiveMatches($pdo, $championshipId)
     $stmt = $pdo->prepare("SELECT CS.Nev AS Hazai, CSA.Nev AS Vendeg, M.Id, M.csoport, M.hazaiEredmeny, M.vendegEredmeny, M.Kezdes FROM meccsek M
     LEFT JOIN csapatok CS ON CS.Id = M.hazaiCsapatId
     LEFT JOIN csapatok CSA ON CSA.Id = M.vendegCsapatId
-    WHERE M.lejatszott = 0 AND M.bajnoksagId = :id");
+    WHERE M.lejatszott = 0 AND M.bajnoksagId = :id
+    ORDER BY Kezdes desc");
     $stmt->execute([
         ":id" => $championshipId
     ]);
@@ -168,4 +215,13 @@ function getAllPlayersByChampionshipId($pdo, $championshipId)
     $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return $players;
+}
+
+function getAllTeams($pdo)
+{
+    $stmt = $pdo->prepare("SELECT * FROM csapatok");
+    $stmt->execute();
+    $teams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $teams;
 }
