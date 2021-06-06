@@ -1,0 +1,10 @@
+td {
+    vertical-align: middle!important;
+    white-space: nowrap!important;
+}
+
+
+  @media all and (max-width:991px) {
+    /* .btn { width: 100%; display:block; margin-top: 10px; } */
+
+ }   

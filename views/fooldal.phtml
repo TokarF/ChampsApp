@@ -1,0 +1,42 @@
+<h1 class="text-center my-4">Főoldal</h1>
+
+    <div class="container ">
+        <?php foreach ($params["championships"] as $championship): ?>
+        <div class="table-responsive">
+            <table class="table table-bordered " style="overflow: hidden; white-space:nowrap" >
+                <thead class="text-center">
+                    <tr class="table-dark">
+                        <th colspan="3" class="lead"><a class="text-reset text-decoration-none" href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a></th>
+                    </tr>
+                    <tr class="table-dark">
+                        <th >Kezdés: <?= $championship["kezdes"] ?></th>
+                        <th class="">Vége:  <?= $championship["vege"] ?></th>
+                        <th class="">Meccsek: 7 / <?= $championship["meccsekSzama"] ?></th>
+                    </tr>
+                    <tr class="table-dark">
+                        <th>#</th>
+                        <th>Név</th>
+                        <th>Pontok</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center" >
+                    <tr class="">
+                        <td>1</td>
+                        <td>Mongel Gergő</td>
+                        <td>14</td>
+                    </tr>
+                    <tr class="">
+                        <td >2</td>
+                        <td>Balázs Norbert</td>
+                        <td>12</td>
+                    </tr>
+                    <tr class="">
+                        <td>3</td>
+                        <td>Tokár Ferenc</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <?php endforeach; ?>
+    </div>

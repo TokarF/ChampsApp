@@ -1,0 +1,160 @@
+<div class="container my-5">
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h3><?= $params["championship"]["nev"] ?></h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h4 class="">Kezdete:</h4>
+                </div>
+                <div class="col-lg-8">
+                    <h4 class=""><?= $params["championship"]["kezdes"] ?></h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <h4 class="">Vége:</h4>
+                </div>
+                <div class="col-lg-8">
+                    <h4 class=""><?= $params["championship"]["vege"] ?></h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <h4 class="">Meccsek:</h4>
+                </div>
+                <div class="col-lg-8">
+                    <h4 class="d-inline-block"> <?= count($params["championship"]["lejatszott-meccsek"]) ?> / <?= $params["championship"]["meccsekSzama"] ?></h4>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?= count($params["championship"]["lejatszott-meccsek"])  / $params["championship"]["meccsekSzama"] * 100 ?>%;" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container text-center mb-5">
+    <a href="uj-meccsek.html" class="btn btn-lg btn-outline-success" type="button"><span class="p-2"><i class="fas fa-plus"></i></span> Új meccsek</a>
+</div>
+
+<h1 class="text-center my-4">Meccsek</h1>
+
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active mb-3" data-bs-toggle="tab" href="#aktiv-meccsek">Aktív meccsek</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#lejatszott-meccsek">Lejátszott meccsek</a>
+        </li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade active show" id="aktiv-meccsek">
+            <div class="table-responsive">
+                <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
+                    <thead class="text-center">
+                        <tr class="table-dark">
+                            <th>#</th>
+                            <th>Kezdés</th>
+                            <th>Hazai</th>
+                            <th>Vendég</th>
+                            <th>Csoport</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <?php foreach ($params["championship"]["aktiv-meccsek"] as $activeMatch) : ?>
+                            <tr class="">
+                                <td><?= $activeMatch["Id"] ?></td>
+                                <td><?= date('Y-m-d H:i', strtotime($activeMatch["Kezdes"]));  ?></td>
+                                <td><?= $activeMatch["Hazai"] ?></td>
+                                <td><?= $activeMatch["Vendeg"] ?></td>
+                                <td><?= $activeMatch["csoport"] ?></td>
+                                <td>
+                                    <a style="margin-right: 5px;" class="btn btn-outline-warning" href=""><i class="fas fa-pencil-alt"></i></a>
+                                    <a class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade show" id="lejatszott-meccsek">
+            <div class="table-responsive">
+                <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
+                    <thead class="text-center">
+                        <tr class="table-dark">
+                            <th>#</th>
+                            <th>Időpont</th>
+                            <th>Hazai</th>
+                            <th>Vendég</th>
+                            <th>Csoport</th>
+                            <th>Eredmény</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <?php foreach ($params["championship"]["lejatszott-meccsek"] as $closedMatch) : ?>
+                            <tr class="">
+                                <td><?= $closedMatch["id"] ?></td>
+                                <td><?= date('Y-m-d H:i', strtotime($closedMatch["Kezdes"]));  ?></td>
+                                <td><?= $closedMatch["Hazai"] ?></td>
+                                <td><?= $closedMatch["Vendeg"] ?></td>
+                                <td><?= $closedMatch["csoport"] ?></td>
+                                <td><?= $closedMatch["hazaiEredmeny"] . " - " . $closedMatch["vendegEredmeny"]  ?></td>
+                                <td>
+                                    <a style="margin-right: 5px;" class="btn btn-outline-warning" href=""><i class="fas fa-pencil-alt"></i></a>
+                                    <a class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h1 class="text-center my-4">Tabella</h1>
+<div class="container ">
+    <div class="table-responsive">
+        <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
+            <thead class="text-center">
+                <tr class="table-dark">
+                    <th>#</th>
+                    <th>Név</th>
+                    <th>Pontok</th>
+                    <th>Forma</th>
+                </tr>
+            </thead>
+            <tbody class="text-center" style="overflow: hidden; white-space:nowrap">
+                <?php foreach ($params["players"] as $player) : ?>
+                    <tr class="">
+                        <td><?= $player["id"] ?></td>
+                        <td><?= $player["nev"] ?></td>
+                        <td><?= array_sum(array_column($player["tippek"], 'pont')); ?></td>
+                        <td s style="overflow: hidden; white-space:nowrap">
+                            <?php foreach ($player["tippek"] as $tipp) : ?>
+                                <?php switch ($tipp["pont"]):
+                                    case 3: ?>
+                                        <button style="margin-right: 5px;" type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"]   ?>"><i class="far fa-check-circle fa-lg"></i></button>
+                                        <?php break; ?>
+                                    <?php
+                                    case 1: ?>
+                                        <button style="margin-right: 5px;" type="button" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="top" title="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"]   ?>"><i class="far fa-dot-circle fa-lg"></i></button>
+                                        <?php break; ?>
+                                    <?php
+                                    case 0: ?>
+                                        <button style="margin-right: 5px;" type="button" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="top" title="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"]   ?>"><i class="far fa-times-circle fa-lg"></i></button>
+                                        <?php break; ?>
+                                <?php endswitch; ?>
+                            <?php endforeach; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
