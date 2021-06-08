@@ -14,6 +14,12 @@ $routes = [
     ['GET', '/bajnoksag/{championshipId}', 'championshipHandler'],
     ['GET', '/uj-meccsek/{championshipId}', 'createMatchesFormHandler'],
     ['POST', '/uj-meccsek/{championshipId}', 'addMatchesFormHandler'],
+    ['GET', '/meccs-szerkesztes/{matchId}', 'editMatchHandler'],
+    ['POST', '/meccs-szerkesztes/{matchId}', 'updateMatchHandler'],
+    ['POST', '/meccs-torles/{matchId}', 'deleteMatchHandler'],
+    
+    ['POST', '/tippek-leadasa', 'tipsHandler'],
+    ['POST', '/tipp-torles/{tipId}', 'tipDeleteHandler'],
 
     // // Kategóriák
     // ['GET', '/kategoriak', 'categoriesHandler'],
@@ -38,6 +44,7 @@ function homeHandler()
     $pdo = getConnection();
     $championships = getAllChampionship($pdo);
 
+
     echo render("wrapper.phtml", [
         "content" => render("fooldal.phtml", [
             "championships" => $championships,
@@ -57,12 +64,48 @@ function getConnection()
     return new PDO("mysql:dbname=goltoto;host=localhost;charset=utf8", "root");
 }
 
+
+
+function tipsHandler()
+{
+    $pdo = getConnection();
+    // echo "<pre>";
+    // var_dump($_POST);
+
+    foreach ($_POST["meccs-id"] as $i => $meccs) {
+        // echo "Bajnokság: ". $_POST["bajnoksag-id"] . " - Meccs: " . $_POST["meccs-id"][$i] . " - Hazai: " . $_POST["hazai-eredmeny"][$i] . " - Vendég: " . $_POST["vendeg-eredmeny"][$i];
+        // echo "<br>";
+        $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = 1");
+        $stmt->execute([
+            ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
+            ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
+            ":meccsId" => $_POST["meccs-id"][$i]
+        ]);
+    }
+    header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
+}
+
+
+function tipDeleteHandler($urlParams)
+{
+    $pdo = getConnection();
+
+    $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = NULL, vendegEredmeny = NULL WHERE id = :id");
+    $stmt->execute([":id" => $urlParams["tipId"]]);
+
+    header("Location: {$_SERVER["HTTP_REFERER"]}");
+
+
+}
+
+
 function championshipHandler($urlParams)
 {
     $pdo = getConnection();
     $championship = getChampionshipById($pdo, $urlParams["championshipId"]);
     $players = getAllPlayersByChampionshipId($pdo, $urlParams["championshipId"]);
-    
+    $activeTips = getAllActiveTips($pdo, $urlParams["championshipId"]);
+    $givenTips = getAllGivenTips($pdo, $urlParams["championshipId"]);
     // echo "<pre>";
     // var_dump($players);
     foreach ($players as $key => $player) {
@@ -79,7 +122,9 @@ function championshipHandler($urlParams)
     echo render("wrapper.phtml", [
         "content" => render("bajnoksag.phtml", [
             "championship" => $championship,
-            "players" => $players
+            "players" => $players,
+            "activeTips" => $activeTips,
+            "givenTips" => $givenTips
         ]),
     ]);
 }
@@ -94,6 +139,84 @@ function createMatchesFormHandler($urlParams)
             "teams" => $teams
         ])
     ]);
+}
+
+function editMatchHandler($urlParams)
+{
+    $pdo = getConnection();
+    
+    $stmt = $pdo->prepare("SELECT M.*, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M LEFT JOIN csapatok CS on CS.id = M.hazaiCsapatId LEFT JOIN csapatok CSA on CSA.id = M.vendegCsapatId WHERE M.Id = :id");
+    $stmt->execute([":id" => $urlParams["matchId"]]);
+    $match = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo render("wrapper.phtml", [
+        "content" => render("meccs-modositas.phtml", [
+            "match" => $match,
+        ])
+    ]);
+}
+
+function updateMatchHandler($urlParams)
+{
+    $pdo = getConnection();
+
+    $stmt = $pdo->prepare("UPDATE meccsek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny, lejatszott = 1 WHERE Id = :id");
+    $stmt->execute([
+        ":hazaiEredmeny" => $_POST["hazai-eredmeny"],
+        ":vendegEredmeny" => $_POST["vendeg-eredmeny"],
+        ":id" => $urlParams["matchId"]
+    ]);
+
+    $stmt = $pdo->prepare("SELECT * FROM tippek WHERE meccsId = :meccsId");
+    $stmt->execute([
+        ":meccsId" => $urlParams["matchId"]
+    ]);
+    $meccsTippek = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+
+
+
+    foreach ($meccsTippek as $tipp) {
+        if (!is_null($tipp["hazaiEredmeny"]) && !is_null($tipp["vendegEredmeny"]) ) {
+            if ($_POST["hazai-eredmeny"] == $tipp["hazaiEredmeny"] && $_POST["vendeg-eredmeny"] == $tipp["vendegEredmeny"]) {
+                $sql = "UPDATE tippek SET pont = 3 WHERE meccsId = :meccsId AND jatekosId = :jatekosId";
+            } elseif (($_POST["hazai-eredmeny"] > $_POST["vendeg-eredmeny"] &&  $tipp["hazaiEredmeny"] > $tipp["vendegEredmeny"]) || ($_POST["hazai-eredmeny"] < $_POST["vendeg-eredmeny"] &&  $tipp["hazaiEredmeny"] < $tipp["vendegEredmeny"]) || ($_POST["hazai-eredmeny"] == $_POST["vendeg-eredmeny"] &&  $tipp["hazaiEredmeny"] == $tipp["vendegEredmeny"])) {
+                $sql = "UPDATE tippek SET pont = 1 WHERE meccsId = :meccsId AND jatekosId = :jatekosId";
+            } else {
+                $sql = "UPDATE tippek SET pont = 0 WHERE meccsId = :meccsId AND jatekosId = :jatekosId";
+            }
+        } else {
+            $sql = "UPDATE tippek SET pont = 0 WHERE meccsId = :meccsId AND jatekosId = :jatekosId";
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ":meccsId" => $tipp["meccsId"],
+            ":jatekosId" => $tipp["jatekosId"],
+
+        ]);
+    };
+    
+    $stmt = $pdo->prepare("SELECT bajnoksagId FROM meccsek WHERE Id = :id");
+    $stmt->execute([":id" => $urlParams["matchId"]]);
+    
+    header("Location: /bajnoksag/" . $meccsTippek[0]["bajnoksagId"]);
+
+
+}
+
+function deleteMatchHandler($urlParams)
+{
+    // Meccs törlése a meccsek táblából
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("DELETE FROM meccsek WHERE id = :id");
+    $stmt->execute([":id" => $urlParams["matchId"]]);
+    
+    // Tippek törlése
+    $stmt = $pdo->prepare("DELETE FROM tippek WHERE meccsid = :id");
+    $stmt->execute([":id" => $urlParams["matchId"]]);
+
+    header("Location: {$_SERVER["HTTP_REFERER"]}");
 }
 
 function addMatchesFormHandler($urlParams)
@@ -137,6 +260,11 @@ function getAllChampionship($pdo)
     $stmt->execute();
     $championships = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+    foreach ($championships as $i => $championship) {
+        $championships[$i]["players"] = getAllPlayersByChampionshipId($pdo, $championships[$i]["id"]);
+    }
+    
     return $championships;
 }
 
@@ -224,4 +352,44 @@ function getAllTeams($pdo)
     $teams = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return $teams;
+}
+
+function getAllActiveTips($pdo, $championshipId)
+{
+    $stmt = $pdo->prepare("SELECT T.*, M.Id, M.kezdes, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
+    JOIN tippek T ON T.meccsId = M.Id
+    JOIN csapatok CS ON CS.id = M.hazaiCsapatId
+    JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
+    WHERE T.bajnoksagId = :bajnoksagId
+    AND M.lejatszott = 0
+    AND NOW() < M.kezdes - INTERVAL 1 HOUR
+    AND T.jatekosId = 1
+    AND T.hazaiEredmeny IS NULL;");
+
+    $stmt->execute([
+        ":bajnoksagId" => $championshipId
+    ]);
+
+    $activeTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    return $activeTips;
+}
+
+function getAllGivenTips($pdo, $championshipId)
+{
+    $stmt = $pdo->prepare("SELECT T.*, M.Id, M.lejatszott, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
+    JOIN tippek T ON T.meccsId = M.Id
+    JOIN csapatok CS ON CS.id = M.hazaiCsapatId
+    JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
+    WHERE T.bajnoksagId = :bajnoksagId
+    AND T.jatekosId = 1
+    AND T.hazaiEredmeny IS NOT NULL;");
+
+    $stmt->execute([
+        ":bajnoksagId" => $championshipId
+    ]);
+
+    $givenTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    return $givenTips;
 }
