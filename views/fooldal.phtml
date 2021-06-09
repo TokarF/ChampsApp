@@ -11,7 +11,7 @@
                     <tr class="table-dark">
                         <th >Kezdés: <?= $championship["kezdes"] ?></th>
                         <th class="">Vége:  <?= $championship["vege"] ?></th>
-                        <th class="">Meccsek: 7 / <?= $championship["meccsekSzama"] ?></th>
+                        <th class="">Meccsek: 0 / <?= $championship["meccsekSzama"] ?></th>
                     </tr>
                     <tr class="table-dark">
                         <th>#</th>
@@ -20,21 +20,13 @@
                     </tr>
                 </thead>
                 <tbody class="text-center" >
+                    <?php foreach ($championship["players"] as $player): ?>
                     <tr class="">
-                        <td>1</td>
-                        <td>Mongel Gergő</td>
-                        <td>14</td>
+                        <td><?= $player["id"] ?></td>
+                        <td><?= $player["nev"] ?></td>
+                        <td>-</td>
                     </tr>
-                    <tr class="">
-                        <td >2</td>
-                        <td>Balázs Norbert</td>
-                        <td>12</td>
-                    </tr>
-                    <tr class="">
-                        <td>3</td>
-                        <td>Tokár Ferenc</td>
-                        <td>10</td>
-                    </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

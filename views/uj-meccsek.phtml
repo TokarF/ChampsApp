@@ -81,10 +81,8 @@
         `;
 
     ujMeccs.addEventListener("click", () => {
-        // meccsek.appendChild(ujMeccsSor);
         meccsek.insertAdjacentHTML("beforeend", ujMeccsSor);
     })
-    console.log(ujMeccs);
 
     function deleteRow(current){
         current.closest(".form-group").remove();
