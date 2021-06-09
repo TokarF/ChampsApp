@@ -24,15 +24,22 @@
 
             <div class="collapse navbar-collapse" id="navbarColor02">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Új Bajnokság</a>
+                    <!-- <!-- <li class="nav-item"> -->
+                    <?php if (isset($_SESSION["userId"])) : ?>
+                        <a class="nav-link active disabled"><i style="margin-right: 5px;" class="far fa-user"></i><?= $_SESSION["userName"] ?></a>
+                    <?php endif; ?>
+                        <!-- <a class="nav-link active" href="/registration">Regisztriáció</a> -->
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Új Csapat</a>
-                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link active" href="/login">Bejelentkezés</a>
+                    </li>  -->
                 </ul>
                 <div class="d-flex">
-                    <a class="btn btn-outline-danger my-2 my-sm-0" type="submit"><span style="padding-right: 5px;" class=""><i class="fas fa-sign-out-alt"></span></i>Kijelentkezés</a>
+                    <?php if (isset($_SESSION["userId"])) : ?>
+                        <form action="/logout" method="POST">
+                            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit"><span style="padding-right: 5px;" class=""><i class="fas fa-sign-out-alt"></span></i>Kijelentkezés</a>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </div>
 
