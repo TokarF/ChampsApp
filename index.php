@@ -1,5 +1,11 @@
 <?php
 
+if ($_SERVER['DEPLOYMENT_MODE'] === 'DEV') {
+    ini_set('display_Errorr', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
+
 require './router.php';
 require './championship.php';
 require './loginandregister.php';
