@@ -1,7 +1,7 @@
 <?php
 
 if ($_SERVER['DEPLOYMENT_MODE'] === 'DEV') {
-    ini_set('display_Errorr', '1');
+    ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
 }
@@ -82,7 +82,21 @@ function render($path, $params = [])
 
 function getConnection()
 {
-    return new PDO("mysql:dbname=goltoto;host=localhost;charset=utf8", "root");
+/*    return new PDO(
+	              "'mysql:host=' . $_SERVER['DB_HOST'] . ';dbname=' . $_SERVER['DB_NAME'],
+                        $_SERVER['DB_USER'],
+                        $_SERVER['DB_PASSWORD']"
+                );
+*/
+    $dsn = "mysql:host=localhost;dbname=c26268goaltoto";
+    $user = "c26268feri";
+    $passwd = "egyketto12";
+
+
+    return new PDO(
+	              $dsn, $user, $passwd
+                );
+
 }
 
 

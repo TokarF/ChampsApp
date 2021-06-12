@@ -12,14 +12,17 @@ function tipsHandler()
         return;
     }
 
+    // Ha egy órán belül van a meccs kezdése, akkor ne lehessen tippet leadni
     foreach ($_POST["meccs-id"] as $i => $meccs) {
-        $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = :jatekosId");
-        $stmt->execute([
-            ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
-            ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
-            ":meccsId" => $_POST["meccs-id"][$i],
-            ":jatekosId" => (int)$_SESSION["userId"]
-        ]);
+        if (strtotime($_POST["kezdes"][$i]) - 3600 > time()) {
+            $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = :jatekosId");
+            $stmt->execute([
+                ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
+                ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
+                ":meccsId" => $_POST["meccs-id"][$i],
+                ":jatekosId" => (int)$_SESSION["userId"]
+            ]);
+        }
     }
     header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
 }
@@ -41,10 +44,10 @@ function getAllTipsByChampionshipIdAndPlayerId($pdo, $championshipId, $playerId)
     JOIN meccsek M ON M.Id = T.meccsId
     JOIN csapatok CS ON CS.id = M.hazaiCsapatId
     JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
-    join jatekosok J ON J.id = T.jatekosId
+    JOIN jatekosok J ON J.id = T.jatekosId
     WHERE T.bajnoksagId = :championshipId 
     AND M.lejatszott = 1
-    AND j.id = :playerId");
+    AND J.id = :playerId");
     $stmt->execute([
         ":championshipId" => $championshipId,
         ":playerId" => $playerId

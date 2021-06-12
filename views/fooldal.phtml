@@ -1,16 +1,16 @@
 <h1 class="text-center my-4">Főoldal</h1>
 
-    <div class="container ">
-        <?php foreach ($params["championships"] as $championship): ?>
+<div class="container ">
+    <?php foreach ($params["championships"] as $championship) : ?>
         <div class="table-responsive">
-            <table class="table table-bordered " style="overflow: hidden; white-space:nowrap" >
+            <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
                 <thead class="text-center">
                     <tr class="table-dark">
                         <th colspan="3" class="lead"><a class="text-reset text-decoration-none" href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a></th>
                     </tr>
                     <tr class="table-dark">
-                        <th >Kezdés: <?= $championship["kezdes"] ?></th>
-                        <th class="">Vége:  <?= $championship["vege"] ?></th>
+                        <th>Kezdés: <?= $championship["kezdes"] ?></th>
+                        <th class="">Vége: <?= $championship["vege"] ?></th>
                         <th class="">Meccsek: 0 / <?= $championship["meccsekSzama"] ?></th>
                     </tr>
                     <tr class="table-dark">
@@ -19,16 +19,16 @@
                         <th>Pontok</th>
                     </tr>
                 </thead>
-                <tbody class="text-center" >
-                    <?php foreach ($championship["players"] as $player): ?>
-                    <tr class="">
-                        <td><?= $player["id"] ?></td>
-                        <td><?= $player["nev"] ?></td>
-                        <td>-</td>
-                    </tr>
+                <tbody class="text-center">
+                    <?php foreach ($championship["players"] as $player) : ?>
+                        <tr class="">
+                            <td><?= $player["id"] ?></td>
+                            <td><?= $player["nev"] ?></td>
+                            <td>-</td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
-        <?php endforeach; ?>
-    </div>
+    <?php endforeach; ?>
+</div>
