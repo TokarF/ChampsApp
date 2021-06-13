@@ -6,17 +6,18 @@
             <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
                 <thead class="text-center">
                     <tr class="table-dark">
-                        <th colspan="3" class="lead"><a class="text-reset text-decoration-none" href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a></th>
+                        <th colspan="4" class="lead"><a class="text-reset text-decoration-none" href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a></th>
                     </tr>
                     <tr class="table-dark">
                         <th>Kezdés: <?= $championship["kezdes"] ?></th>
                         <th class="">Vége: <?= $championship["vege"] ?></th>
-                        <th class="">Meccsek: 0 / <?= $championship["meccsekSzama"] ?></th>
+                        <th colspan="2" class="">Meccsek: <?= $championship["closedMatchesCount"] ?> / <?= $championship["meccsekSzama"] ?></th>
                     </tr>
                     <tr class="table-dark">
                         <th>#</th>
                         <th>Név</th>
                         <th>Pontok</th>
+                        <th>Telitalálatok</th>
                     </tr>
                 </thead>
                 <tbody class="text-center">
@@ -24,7 +25,8 @@
                         <tr class="">
                             <td><?= $player["id"] ?></td>
                             <td><?= $player["nev"] ?></td>
-                            <td>-</td>
+                            <td><?= $player["pontok"]["osszpont"] ?></td>
+                            <td><?= $player["pontok"]["telitalalat"] ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

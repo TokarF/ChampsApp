@@ -1,11 +1,6 @@
 <?php
 
-if ($_SERVER['DEPLOYMENT_MODE'] === 'DEV') {
-    ini_set('display_errors', '1');
-    ini_set('display_startup_errors', '1');
-    error_reporting(E_ALL);
-}
-
+require "./db_conf.php";
 require './router.php';
 require './championship.php';
 require './loginandregister.php';
@@ -58,13 +53,16 @@ function homeHandler()
 {
     $pdo = getConnection();
     $championships = getAllChampionship($pdo);
-
+ 
     if (!isLoggedIn()) {
         echo render("wrapper.phtml", [
             "content" => render("loginForm.phtml")
         ]);
         return;
     }
+
+
+
 
     echo render("wrapper.phtml", [
         "content" => render("fooldal.phtml", [
@@ -79,24 +77,3 @@ function render($path, $params = [])
     require __DIR__ . '/views/' . $path;
     return ob_get_clean();
 }
-
-function getConnection()
-{
-/*    return new PDO(
-	              "'mysql:host=' . $_SERVER['DB_HOST'] . ';dbname=' . $_SERVER['DB_NAME'],
-                        $_SERVER['DB_USER'],
-                        $_SERVER['DB_PASSWORD']"
-                );
-*/
-    $dsn = "mysql:host=localhost;dbname=c26268goaltoto";
-    $user = "c26268feri";
-    $passwd = "egyketto12";
-
-
-    return new PDO(
-	              $dsn, $user, $passwd
-                );
-
-}
-
-

@@ -213,6 +213,7 @@
                     <th>#</th>
                     <th>Név</th>
                     <th>Pontok</th>
+                    <th>Telitalálatok</th>
                     <th>Forma</th>
                 </tr>
             </thead>
@@ -221,7 +222,8 @@
                     <tr class="">
                         <td><?= $player["id"] ?></td>
                         <td><?= $player["nev"] ?></td>
-                        <td><?= array_sum(array_column($player["tippek"], 'pont')); ?></td>
+                        <td><?= $player["pontok"]["osszpont"]; ?></td>
+                        <td><?= $player["pontok"]["telitalalat"]; ?></td>
                         <td s style="overflow: hidden; white-space:nowrap">
                             <?php foreach (array_reverse($player["tippek"]) as $tipp) : ?>
                                 <?php switch ($tipp["pont"]):

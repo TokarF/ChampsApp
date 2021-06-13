@@ -58,9 +58,31 @@ function getAllTipsByChampionshipIdAndPlayerId($pdo, $championshipId, $playerId)
     return $tips;
 }
 
+function getPointsByPlayerId($pdo, $championshipId, $playerId)
+{
+    $stmt = $pdo->prepare(
+        "SELECT 
+            SUM(T.pont) AS osszpont,
+            COUNT(CASE WHEN T.pont = 3 THEN 1 END) AS telitalalat
+        FROM tippek T
+        JOIN jatekosok J ON J.id = T.jatekosId
+        WHERE J.id = :jatekosId
+        AND T.bajnoksagId = :bajnoksagId
+    ");
+
+    $stmt->execute([
+        ":bajnoksagId" => $championshipId,
+        ":jatekosId" => $playerId
+    ]);
+
+    $pointsAndBullsEye = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $pointsAndBullsEye;
+}
+
 function getAllActiveTips($pdo, $championshipId)
 {
-        $stmt = $pdo->prepare("SELECT T.*, M.Id, M.kezdes, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
+    $stmt = $pdo->prepare("SELECT T.*, M.Id, M.kezdes, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
         JOIN tippek T ON T.meccsId = M.Id
         JOIN csapatok CS ON CS.id = M.hazaiCsapatId
         JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
@@ -69,15 +91,15 @@ function getAllActiveTips($pdo, $championshipId)
         AND NOW() < M.kezdes - INTERVAL 1 HOUR
         AND T.jatekosId = :jatekosId
         AND T.hazaiEredmeny IS NULL;");
-    
-        $stmt->execute([
-            ":bajnoksagId" => $championshipId,
-            ":jatekosId" => (int)$_SESSION["userId"]
-        ]);
-        
 
-        $activeTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $activeTips;
+    $stmt->execute([
+        ":bajnoksagId" => $championshipId,
+        ":jatekosId" => (int)$_SESSION["userId"]
+    ]);
+
+
+    $activeTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $activeTips;
 }
 
 function getAllGivenTips($pdo, $championshipId)

@@ -16,13 +16,10 @@ function championshipHandler($urlParams)
     $givenTips = getAllGivenTips($pdo, $urlParams["championshipId"]);
     // echo "<pre>";
     // var_dump($players);
-    foreach ($players as $key => $player) {
-        $players[$key]["tippek"] = getAllTipsByChampionshipIdAndPlayerId($pdo, $player["bajnoksagId"], $player["id"]);
-        $players[$key]["osszpont"] = array_sum(array_column($players[$key]["tippek"], 'pont'));
-    }
-    usort($players, function ($player1, $player2) {
-        return $player2['osszpont'] <=> $player1['osszpont'];
-    });
+ 
+
+
+
 
     echo render("wrapper.phtml", [
         "content" => render("bajnoksag.phtml", [
@@ -44,6 +41,7 @@ function getAllChampionship($pdo)
 
     foreach ($championships as $i => $championship) {
         $championships[$i]["players"] = getAllPlayersByChampionshipId($pdo, $championships[$i]["id"]);
+        $championships[$i]["closedMatchesCount"] = count(getChampionshipClosedMatches($pdo,  $championships[$i]["id"]));
     }
 
     return $championships;
@@ -72,7 +70,26 @@ function getAllPlayersByChampionshipId($pdo, $championshipId)
         ":id" => $championshipId
     ]);
 
+    
     $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($players as $key => $player) {
+        $players[$key]["pontok"] = getPointsByPlayerId($pdo, $player["bajnoksagId"], $player["id"]);
+        $players[$key]["tippek"] = getAllTipsByChampionshipIdAndPlayerId($pdo, $player["bajnoksagId"], $player["id"]);
+
+    }
+
+    array_multisort(
+        array_map(function ($player) {
+            return $player['pontok']["osszpont"];
+        }, $players),
+        SORT_DESC,
+        array_map(function ($player) {
+            return $player['pontok']["telitalalat"];
+        }, $players),
+        SORT_DESC,
+        $players
+    );
 
     return $players;
 }
