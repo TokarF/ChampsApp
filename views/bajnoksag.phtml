@@ -128,7 +128,10 @@
             <a class="nav-link active mb-3" data-bs-toggle="tab" href="#aktiv-tippek">Aktív Tippek</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#leadott-tippek">Leadott Tippek</a>
+            <a class="nav-link" data-bs-toggle="tab" href="#sajat-tippek">Saját Tippek</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#masok-tippjei">Mások Tippjei</a>
         </li>
     </ul>
     <div id="myTabContent" class="tab-content">
@@ -169,32 +172,53 @@
                 </div>
             <?php endif; ?>
         </div>
-        <div class="tab-pane fade show" id="leadott-tippek">
+        <div class="tab-pane fade show" id="sajat-tippek">
+
             <div class="table-responsive">
                 <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
                     <thead class="text-center">
                         <tr class="table-dark">
                             <th>#</th>
-                            <th>Hazai Csapat</th>
-                            <th>Hazai Eredmény</th>
-                            <th>Vendég Csapat</th>
-                            <th>Vendég Eredmény</th>
+                            <th>Meccs</th>
+                            <th>Tipp</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
-                        <?php foreach ($params["givenTips"] as $givenTip) : ?>
+                        <?php foreach ($params["ownGivenTips"] as $givenTip) : ?>
                             <tr class="">
-                                <td><?= $givenTip["meccsId"] ?></td>
-                                <td><?= $givenTip["hazai"] ?></td>
-                                <td><?= $givenTip["hazaiEredmeny"] ?></td>
-                                <td><?= $givenTip["vendeg"] ?></td>
-                                <td><?= $givenTip["vendegEredmeny"] ?></td>
+                                <td><?= $givenTip["Id"] ?></td>
+                                <td><?= $givenTip["meccs"] ?></td>
+                                <td><?= $givenTip["tipp"] ?></td>
                                 <td>
                                     <?php if ($givenTip["lejatszott"] == 0) : ?>
-                                        <form class="d-inline" action="/tipp-torles/<?= $givenTip["id"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
+                                        <form class="d-inline" action="/tipp-torles/<?= $givenTip["Id"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
                                     <?php endif; ?>
                                 </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade show" id="masok-tippjei">
+            <div class="table-responsive">
+                <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
+                    <thead class="text-center">
+                        <tr class="table-dark">
+                            <th>#</th>
+                            <th>Játékos</th>
+                            <th>Meccs</th>
+                            <th>Tipp</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <?php foreach ($params["othersGivenTips"] as $givenTip) : ?>
+                            <tr class="">
+                                <td><?= $givenTip["meccsId"] ?></td>
+                                <td><?= $givenTip["nev"] ?></td>
+                                <td><?= $givenTip["meccs"] ?></td>
+                                <td><?= $givenTip["tipp"] ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -225,7 +249,7 @@
                         <td><?= $player["pontok"]["osszpont"]; ?></td>
                         <td><?= $player["pontok"]["telitalalat"]; ?></td>
                         <td s style="overflow: hidden; white-space:nowrap">
-                            <?php foreach (array_reverse($player["tippek"]) as $tipp) : ?>
+                            <?php foreach ($player["tippek"] as $tipp) : ?>
                                 <?php switch ($tipp["pont"]):
                                     case 3: ?>
                                         <button style="margin-right: 5px;" type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"]   ?>"><i class="far fa-check-circle fa-lg"></i></button>

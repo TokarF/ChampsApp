@@ -47,7 +47,8 @@ function getAllTipsByChampionshipIdAndPlayerId($pdo, $championshipId, $playerId)
     JOIN jatekosok J ON J.id = T.jatekosId
     WHERE T.bajnoksagId = :championshipId 
     AND M.lejatszott = 1
-    AND J.id = :playerId");
+    AND J.id = :playerId
+    ORDER BY T.meccsId DESC");
     $stmt->execute([
         ":championshipId" => $championshipId,
         ":playerId" => $playerId
@@ -102,15 +103,22 @@ function getAllActiveTips($pdo, $championshipId)
     return $activeTips;
 }
 
-function getAllGivenTips($pdo, $championshipId)
+function getOwnGivenTips($pdo, $championshipId)
 {
-    $stmt = $pdo->prepare("SELECT T.*, M.Id, M.lejatszott, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
-    JOIN tippek T ON T.meccsId = M.Id
-    JOIN csapatok CS ON CS.id = M.hazaiCsapatId
-    JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
-    WHERE T.bajnoksagId = :bajnoksagId
-    AND T.jatekosId = :jatekosId
-    AND T.hazaiEredmeny IS NOT NULL;");
+    $stmt = $pdo->prepare(
+        "SELECT 
+            M.Id, 
+            CONCAT(CS.nev, ' - ', CSA.nev) AS meccs,
+            CONCAT(T.hazaiEredmeny, ' - ', T.vendegEredmeny) AS tipp, 
+            M.lejatszott 
+            FROM meccsek M
+            JOIN tippek T ON T.meccsId = M.Id
+            JOIN csapatok CS ON CS.id = M.hazaiCsapatId
+            JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
+            WHERE T.bajnoksagId = :bajnoksagId
+            AND T.jatekosId = :jatekosId
+            AND T.hazaiEredmeny IS NOT NULL
+            ORDER BY T.meccsId DESC;");
 
     $stmt->execute([
         ":bajnoksagId" => $championshipId,
@@ -120,4 +128,33 @@ function getAllGivenTips($pdo, $championshipId)
     $givenTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return $givenTips;
+}
+
+function getOthersGivenTips($pdo, $championshipId)
+{
+    $stmt = $pdo->prepare(
+            "SELECT 
+                T.meccsId, 
+                J.nev, 
+                CONCAT(CS.neV, ' - ', CSA.nev) AS meccs,
+                CONCAT(T.hazaiEredmeny, ' - ', T.vendegEredmeny) AS tipp 
+            FROM meccsek M
+            JOIN tippek T ON T.meccsId = M.Id
+            JOIN jatekosok J ON J.id = T.jatekosId 
+            JOIN csapatok CS ON CS.id = M.hazaiCsapatId 
+            JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
+            WHERE T.bajnoksagId = :bajnoksagId
+            AND T.jatekosId != :jatekosId
+            AND T.hazaiEredmeny IS NOT NULL 
+            ORDER BY T.meccsId DESC, T.jatekosId ASC;");
+
+    
+    $stmt->execute([
+        ":bajnoksagId" => $championshipId,
+        ":jatekosId" => (int)$_SESSION["userId"]
+    ]);
+
+    $othersGivenTips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $othersGivenTips;
 }
