@@ -196,29 +196,31 @@
                                     <?php endif; ?>
                                 </td>
                             </tr>
+
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
+        <script>
+            var tippek = <?php echo json_encode($params["ownGivenTips"] ) ?>;
+        </script>
         <div class="tab-pane fade show" id="masok-tippjei">
             <div class="table-responsive">
                 <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
                     <thead class="text-center">
                         <tr class="table-dark">
                             <th>#</th>
-                            <th>Játékos</th>
                             <th>Meccs</th>
-                            <th>Tipp</th>
+                            <th>Tippek</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
                         <?php foreach ($params["othersGivenTips"] as $givenTip) : ?>
                             <tr class="">
-                                <td><?= $givenTip["meccsId"] ?></td>
-                                <td><?= $givenTip["nev"] ?></td>
+                                <td><?= $givenTip["Id"] ?></td>
                                 <td><?= $givenTip["meccs"] ?></td>
-                                <td><?= $givenTip["tipp"] ?></td>
+                                <td><?= $givenTip["tippek"] ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

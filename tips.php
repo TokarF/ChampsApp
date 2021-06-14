@@ -133,21 +133,19 @@ function getOwnGivenTips($pdo, $championshipId)
 function getOthersGivenTips($pdo, $championshipId)
 {
     $stmt = $pdo->prepare(
-            "SELECT 
-                T.meccsId, 
-                J.nev, 
-                CONCAT(CS.neV, ' - ', CSA.nev) AS meccs,
-                CONCAT(T.hazaiEredmeny, ' - ', T.vendegEredmeny) AS tipp 
-            FROM meccsek M
-            JOIN tippek T ON T.meccsId = M.Id
-            JOIN jatekosok J ON J.id = T.jatekosId 
-            JOIN csapatok CS ON CS.id = M.hazaiCsapatId 
-            JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
-            WHERE T.bajnoksagId = :bajnoksagId
-            AND T.jatekosId != :jatekosId
-            AND T.hazaiEredmeny IS NOT NULL 
-            ORDER BY T.meccsId DESC, T.jatekosId ASC;");
-
+        "SELECT 
+            M.Id,
+            CONCAT(H.nev, ' - ', V.nev) AS meccs,
+            GROUP_CONCAT(CONCAT(J.nev, ': ', T.hazaiEredmeny, ' - ', T.vendegEredmeny) ORDER BY J.Id SEPARATOR ' | ') AS tippek 
+        FROM meccsek M
+        JOIN tippek T ON T.meccsId = M.Id
+        JOIN jatekosok J on J.id = T.jatekosId
+        JOIN csapatok H ON H.id = M.hazaiCsapatId
+        JOIN csapatok V on V.id = M.vendegCsapatId
+        WHERE J.id != :jatekosId
+        AND T.bajnoksagId = :bajnoksagId
+        GROUP by M.Id
+        ORDER BY M.Id desc");
     
     $stmt->execute([
         ":bajnoksagId" => $championshipId,
