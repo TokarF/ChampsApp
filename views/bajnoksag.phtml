@@ -192,7 +192,7 @@
                                 <td><?= $givenTip["tipp"] ?></td>
                                 <td>
                                     <?php if ($givenTip["lejatszott"] == 0) : ?>
-                                        <form class="d-inline" action="/tipp-torles/<?= $givenTip["Id"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
+                                        <form class="d-inline" action="/tipp-torles/<?= $givenTip["tippId"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
                                     <?php endif; ?>
                                 </td>
                             </tr>

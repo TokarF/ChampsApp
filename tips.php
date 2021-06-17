@@ -110,7 +110,8 @@ function getOwnGivenTips($pdo, $championshipId)
             M.Id, 
             CONCAT(CS.nev, ' - ', CSA.nev) AS meccs,
             CONCAT(T.hazaiEredmeny, ' - ', T.vendegEredmeny) AS tipp, 
-            M.lejatszott 
+            M.lejatszott,
+            T.id as tippId
             FROM meccsek M
             JOIN tippek T ON T.meccsId = M.Id
             JOIN csapatok CS ON CS.id = M.hazaiCsapatId
