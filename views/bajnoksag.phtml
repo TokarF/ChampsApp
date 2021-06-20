@@ -60,19 +60,22 @@
                         <td class="text-center lead"><?= $player["pontok"]["telitalalat"]; ?></td>
                         <td class="text-left align-middle" style="word-wrap: break-word;min-width: 550px;max-width: 500px;white-space:normal!important;">
                             <?php foreach ($player["tippek"] as $tipp) : ?>
+                                
                                 <?php switch ($tipp["pont"]):
                                     case 3: ?>
                                         <button class="btn btn-success btn-sm my-2 mx-1" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"];   ?>"><i class="far fa-check-circle fa-lg"></i>
-                                        </button>
+                                        </button> 
+                                        <?php break; ?>
                                     <?php
                                     case 1: ?>
                                         <button class="btn btn-warning btn-sm my-2 mx-1" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"];   ?>"><i class="far fa-dot-circle fa-lg"></i>
                                         </button>
-
+                                        <?php break; ?>
                                     <?php
                                     case 0: ?>
                                         <button class="btn btn-danger btn-sm my-2 mx-1" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"];   ?>"><i class="far fa-times-circle fa-lg"></i>
                                         </button>
+                                        <?php break; ?>
                                 <?php endswitch; ?>
                             <?php endforeach; ?>
                         </td>
