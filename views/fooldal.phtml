@@ -1,28 +1,29 @@
-<h1 class="text-center my-4">Főoldal</h1>
+<h1 class="text-center text-light my-4">Főoldal</h1>
 
 <div class="container ">
     <?php foreach ($params["championships"] as $championship) : ?>
-        <div class="table-responsive">
-            <table class="table table-bordered " style="overflow: hidden; white-space:nowrap">
-                <thead class="text-center">
-                    <tr class="table-dark">
-                        <th colspan="4" class="lead"><a class="text-reset text-decoration-none" href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a></th>
+        <div class="table-responsive rounded-3 shadow-sm border-secondary">
+            <table class="table table-dark table-bordered ">
+                <thead class="border-secondary">
+                    <tr class="text-center bg-danger">
+                        <th class="bg-secondary text-info" colspan="100%"><a class="lead text-decoration-none text-reset fw-bold "  href="/bajnoksag/<?= $championship["id"] ?>"><?= $championship["nev"] ?></a>
+                        </th>
                     </tr>
-                    <tr class="table-dark">
-                        <th>Kezdés: <?= $championship["kezdes"] ?></th>
-                        <th class="">Vége: <?= $championship["vege"] ?></th>
-                        <th colspan="2" class="">Meccsek: <?= $championship["closedMatchesCount"] ?> / <?= $championship["meccsekSzama"] ?></th>
+                    <tr class="text-center">
+                        <th class="bg-secondary" scope="col">Kezdés: <?= $championship["kezdes"] ?></th>
+                        <th class="bg-secondary">Vége: <?= $championship["vege"] ?></th>
+                        <th class="bg-secondary" colspan="2">Meccsek: <?= $championship["closedMatchesCount"] ?> / <?= $championship["meccsekSzama"] ?></th>
                     </tr>
-                    <tr class="table-dark">
-                        <th>#</th>
-                        <th>Név</th>
-                        <th>Pontok</th>
-                        <th>Telitalálatok</th>
+                    <tr class="text-center">
+                        <th style="width: auto;" class="bg-secondary">#</th>
+                        <th class="bg-secondary">Név</th>
+                        <th class="bg-secondary">Pontok</th>
+                        <th class="bg-secondary">Telitalálat</th>
                     </tr>
                 </thead>
-                <tbody class="text-center">
+                <tbody class="border-secondary">
                     <?php foreach ($championship["players"] as $player) : ?>
-                        <tr class="">
+                        <tr class="text-center">
                             <td><?= $player["id"] ?></td>
                             <td><?= $player["nev"] ?></td>
                             <td><?= $player["pontok"]["osszpont"] ?></td>

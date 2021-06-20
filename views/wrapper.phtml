@@ -5,52 +5,53 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../public/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../public/css/style.css">
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"> -->
+
     <link rel="shortcut icon" type="image/png" href="/public/img/football-soccer-ball-32-183228.png">
 
+    <link rel="stylesheet" href="/public/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" referrerpolicy="no-referrer" />
 
     <title>GólTotó</title>
 </head>
 
-<body class="">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="bg-dark">
+    <nav class="navbar navbar-expand-lg bg-secondary navbar-dark">
         <div class="container">
-            <a class="navbar-brand lead" href="/"> <span class="p-2"><i class="fas fa-futbol"></i></span> Góltotó</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <a href="/" class="navbar-brand"><i style="margin-right: 10px;" class="fas fa-futbol text-info"></i></span>GólTotó</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <div class="collapse navbar-collapse" id="navbarColor02">
-                <ul class="navbar-nav me-auto">
-                    <!-- <!-- <li class="nav-item"> -->
-                    <?php if (isset($_SESSION["userId"])) : ?>
-                        <a class="nav-link active disabled"><i style="margin-right: 5px;" class="far fa-user"></i><?= $_SESSION["userName"] ?></a>
-                    <?php endif; ?>
-                        <!-- <a class="nav-link active" href="/registration">Regisztriáció</a> -->
+            <div class="collapse navbar-collapse" id="navmenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <?php if (isset($_SESSION["userId"])) : ?>
+                            <a class="nav-link active disabled"><i style="margin-right: 5px;" class="far fa-user"></i><?= $_SESSION["userName"] ?></a>
+                        <?php endif; ?>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link active" href="/login">Bejelentkezés</a>
-                    </li>  -->
                 </ul>
-                <div class="d-flex">
-                    <?php if (isset($_SESSION["userId"])) : ?>
-                        <form action="/logout" method="POST">
-                            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit"><span style="padding-right: 5px;" class=""><i class="fas fa-sign-out-alt"></span></i>Kijelentkezés</a>
-                        </form>
-                    <?php endif; ?>
-                </div>
+                <?php if (isset($_SESSION["userId"])) : ?>
+                    <form action="/logout" method="POST">
+                        <button class="btn btn-sm btn-outline-danger " type="submit"><span style="padding-right: 5px;" class=""><i class="fas fa-sign-out-alt"></span></i>Kijelentkezés</a>
+                    </form>
+                <?php endif; ?>
             </div>
-
         </div>
     </nav>
-
     <?= $params["content"] ?>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <script src="/public/js/bootstrap.bundle.js"></script>
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script> -->
 </body>
 
 </html>
