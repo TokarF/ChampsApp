@@ -27,7 +27,7 @@ $routes = [
     ['POST', '/meccs-torles/{matchId}', 'deleteMatchHandler'],
 
     // Tips
-    ['POST', '/tippek-leadasa', 'tipsHandler'],
+    ['POST', '/tipp-leadasa/{tipId}', 'tipHandler'],
     ['POST', '/tipp-torles/{tipId}', 'tipDeleteHandler'],
 
     // Registraion

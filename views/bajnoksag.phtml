@@ -60,11 +60,11 @@
                         <td class="text-center lead"><?= $player["pontok"]["telitalalat"]; ?></td>
                         <td class="text-left align-middle" style="word-wrap: break-word;min-width: 550px;max-width: 500px;white-space:normal!important;">
                             <?php foreach ($player["tippek"] as $tipp) : ?>
-                                
+
                                 <?php switch ($tipp["pont"]):
                                     case 3: ?>
                                         <button class="btn btn-success btn-sm my-2 mx-1" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<?= $tipp["hcs"] . " " . $tipp["hazaiEredmeny"] . " - " . $tipp["vendegEredmeny"] . " " . $tipp["vcs"];   ?>"><i class="far fa-check-circle fa-lg"></i>
-                                        </button> 
+                                        </button>
                                         <?php break; ?>
                                     <?php
                                     case 1: ?>
@@ -122,8 +122,8 @@
                                 <td><?= $activeMatch["csoport"] ?></td>
                                 <td>
                                     <?php if ($_SESSION["role"] == 1) : ?>
-                                        <a href="/meccs-szerkesztes/<?= $activeMatch["Id"] ?>"" style=" margin-right: 5px;" class="btn btn-outline-warning"><i class="fas fa-pencil-alt"></i></a>
-                                        <form class="d-inline" action="/meccs-torles/<?= $activeMatch["Id"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
+                                        <button onclick="meccsModositas(this)" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#meccs-szerkesztese-modal" data-meccsid="<?= $activeMatch["Id"] ?>" data-hazai="<?= $activeMatch["Hazai"] ?>" data-vendeg="<?= $activeMatch["Vendeg"] ?>"><i class="fas fa-pencil-alt"></i></button>
+                                        <button onclick="meccsTorles(this)" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#meccs-torlese-modal" data-meccsid="<?= $activeMatch["Id"] ?>"><i class="fas fa-times"></i></button>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -163,13 +163,67 @@
     </div>
 </div>
 <?php if ($_SESSION["role"] == 1) : ?>
-    <div class="container text-center mb-5">
-        <a href="/uj-meccsek/<?= $params["championship"]["id"] ?>" class="btn btn-outline-success" type="button"><span class="p-2"><i class="fas fa-plus"></i></span> Új meccsek</a>
+
+    <div class="d-grid gap-2 col-12 col-sm-4 mx-auto container">
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#uj-meccsek-modal" data-bs-whatever="@mdo"><span class="p-2"><i class="fas fa-plus"></i></span> Új Meccsek</button>
+    </div>
+    <div class="modal fade" id="uj-meccsek-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered ">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header">
+                    <h5 class="modal-title text-info" id="exampleModalLabel">Új Meccsek</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="meccsek" method="POST" action="/uj-meccsek/<?= $params["championship"]["id"] ?>">
+                        <div class="meccs">
+                            <div class="mb-3">
+                                <label for="hazai" class="col-form-label fw-bold">Hazai:</label>
+                                <select name="hazai[]" class="form-select bg-secondary text-white" required>
+                                    <option value="" selected disabled>Kérem válasszon</option>
+                                    <?php foreach ($params["teams"] as $team) : ?>
+                                        <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="vendeg" class="col-form-label fw-bold">Vendég:</label>
+                                <select name="vendeg[]" class="form-select bg-secondary text-white" required>
+                                    <option value="" selected disabled>Kérem válasszon</option>
+                                    <?php foreach ($params["teams"] as $team) : ?>
+                                        <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="vendeg" class="col-form-label fw-bold">Csoport:</label>
+                                <input name="csoport[]" type="text" class="form-control bg-secondary text-white" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="kezdes" class="col-form-label fw-bold">Kezdés:</label>
+                                <input name="kezdes[]" type="datetime-local" class="form-control bg-secondary text-white" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <div class="d-grid gap-3 col-12 mx-auto">
+                        <button id="uj-meccs" class="btn btn-block btn-outline-success" type="submit"><span class="p-2"><i class="fas fa-plus"></i></span> Új Meccs</button>
+                        <button form="meccsek" class="btn btn-block btn-outline-danger" type="submit"><span class="p-2"><i class="fas fa-save"></i></span> Mentés</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><span class="p-2"><i class="fas fa-sign-out-alt"></i></span> Bezár</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 <?php endif; ?>
+
+
+<!-- Tippek -->
+
 <h1 class="text-center my-4 text-white">Tippek</h1>
 
-<div class="container my-3">
+<div class="container my-5">
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
         <li class="nav-item border-secondary" role="presentation ">
             <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#aktiv-tippek" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Aktív Tippek</button>
@@ -180,38 +234,36 @@
         <li class="nav-item " role="presentation">
             <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#masok-tippjei" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Mások Tippjei</button>
         </li>
-
     </ul>
     <div class="tab-content text-white mb-3" id="pills-tabContent">
         <div class="tab-pane fade show active" id="aktiv-tippek" role="tabpanel" aria-labelledby="pills-home-tab">
             <?php if (count($params["activeTips"]) > 0) : ?>
                 <div class="container mt-5">
-                    <form method="POST" action="/tippek-leadasa">
-                        <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
-                        <div id="meccsek" class="">
-                            <?php foreach ($params["activeTips"] as $tip) : ?>
-                                <input type="hidden" name="meccs-id[]" value="<?= $tip["meccsId"] ?>">
+                    <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
+                    <div id="meccsek" class="">
+                        <?php foreach ($params["activeTips"] as $tip) : ?>
+                            <form method="POST" action="/tipp-leadasa/<?= $tip["id"] ?>">
+                                <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
                                 <div class="form-group row">
-                                    <div class="col-lg-1"></div>
                                     <div class="col-lg-2 mb-3">
                                         <label class="form-label lead" for="kezdes"><?= date('Y-m-d H:i', strtotime($tip["kezdes"])); ?></label>
-                                        <input type="hidden" name="kezdes[]" min="0" value="<?= $tip["kezdes"] ?>">
+                                        <input type="hidden" name="kezdes" min="0" value="<?= $tip["kezdes"] ?>">
                                     </div>
-                                    <label class="col-lg-2 lead  mb-3" for="hazai-eredmeny" class="form-label lead"><?= $tip["hazai"] ?></label>
-                                    <div class="col-lg-2  mb-3">
-                                        <input class="bg-secondary form-control text-white border-secondary" name="hazai-eredmeny[]" type="number" min="0" class="form-control" required>
+                                    <label class="col-4 col-lg-2 lead  mb-3" for="hazai-eredmeny" class="form-label lead"><?= $tip["hazai"] ?></label>
+                                    <div class="col-8 col-lg-2  mb-3">
+                                        <input class="bg-secondary form-control text-white border-secondary" name="hazai-eredmeny" type="number" min="0" class="form-control" required>
                                     </div>
-                                    <label class="col-lg-2 lead  mb-3" for="vendeg-eredmeny" class="form-label lead"><?= $tip["vendeg"] ?></label>
-                                    <div class="col-lg-2 mb-3">
-                                        <input class="bg-secondary form-control text-white border-secondary" name="vendeg-eredmeny[]" type="number" min="0" class="form-control" required>
+                                    <label class="col-4 col-lg-2 lead  mb-3" for="vendeg-eredmeny" class="form-label lead"><?= $tip["vendeg"] ?></label>
+                                    <div class="col-8 col-lg-2 mb-3">
+                                        <input class="bg-secondary form-control text-white border-secondary" name="vendeg-eredmeny" type="number" min="0" class="form-control" required>
+                                    </div>
+                                    <div class="col-lg-2 mb-3 d-grid">
+                                        <button class="btn btn-block btn-outline-danger" type="submit"><span class="p-2"><i class="fas fa-save"></i></span>Mentés</button>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="text-center">
-                            <button class="btn btn-block btn-outline-danger" type="submit"><span class="p-2"><i class="fas fa-save"></i></span> Mentés</button>
-                        </div>
-                    </form>
+                            </form>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
@@ -258,7 +310,7 @@
                             <tr class="">
                                 <td><?= $givenTip["Id"] ?></td>
                                 <td><?= $givenTip["meccs"] ?></td>
-                                <td><?= $givenTip["tippek"] ?></td>
+                                <td style="text-align:left"><?= $givenTip["tippek"] ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -267,3 +319,125 @@
         </div>
     </div>
 </div>
+
+
+<!-- Meccs Módosítása Modal -->
+<div class="modal fade" id="meccs-szerkesztese-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLabel">Meccs Szerkesztése</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="meccs-szerkesztese-form" method="POST" action="">
+                    <div class="meccs">
+                        <div class="mb-3">
+                            <label id="hazai-csapat" for="hazai" class="col-form-label fw-bold"></label>
+                            <input name="hazai-eredmeny" type="number" min="0" class="form-control bg-secondary text-white" required>
+                        </div>
+                        <div class="mb-3">
+                            <label id="vendeg-csapat" for="vendeg" class="col-form-label fw-bold"></label>
+                            <input name="vendeg-eredmeny" type="number" min="0" class="form-control bg-secondary text-white" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div class="d-grid gap-3 col-12 mx-auto">
+                    <button form="meccs-szerkesztese-form" class="btn btn-block btn-outline-danger" type="submit"><span class="p-2"><i class="fas fa-save"></i></span> Mentés</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><span class="p-2"><i class="fas fa-sign-out-alt"></i></span> Bezár</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meccs Törlése Modal -->
+<div class="modal fade" id="meccs-torlese-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="exampleModalLabel">Meccs Törlése</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Valóban törölni szeretné a meccset?</h4>
+                <form id="meccs-torlese-form" method="POST" action="">
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div class="d-grid gap-3 col-12 mx-auto">
+                    <button form="meccs-torlese-form" class="btn btn-block btn-outline-danger" type="submit"><span class="p-2"><i class="fas fa-save"></i></span> Törlés</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><span class="p-2"><i class="fas fa-sign-out-alt"></i></span> Bezár</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    let ujMeccs = document.querySelector("#uj-meccs");
+    let meccsek = document.querySelector("#meccsek");
+
+    let ujMeccsSor = `
+                    <div class="meccs">
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label fw-bold">Hazai:</label>
+                            <select name="hazai[]" class="form-select bg-secondary text-white" required>
+                                <option value="" selected disabled>Kérem válasszon</option>
+                                <?php foreach ($params["teams"] as $team) : ?>
+                                    <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vendeg" class="col-form-label fw-bold">Vendég:</label>
+                            <select name="vendeg[]" class="form-select bg-secondary text-white" required>
+                                <option value="" selected disabled>Kérem válasszon</option>
+                                <?php foreach ($params["teams"] as $team) : ?>
+                                    <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vendeg" class="col-form-label fw-bold">Csoport:</label>
+                            <input name="csoport[]" type="text" class="form-control bg-secondary text-white" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="kezdes" class="col-form-label fw-bold">Kezdés:</label>
+                            <input name="kezdes[]" type="datetime-local" class="form-control bg-secondary text-white" required>
+                        </div>
+                        <div class="mb-3 d-grid">
+                            <button onclick="deleteRow(this)"  class="btn btn-block btn-outline-danger"><span class="p-2"><i class="fas fa-times"></i></span> Törlés</button>
+                        </div>
+                    </div>
+        `;
+
+    ujMeccs.addEventListener("click", () => {
+        meccsek.insertAdjacentHTML("beforeend", ujMeccsSor);
+    })
+
+    function deleteRow(current) {
+        current.closest(".meccs").remove();
+    }
+
+    function meccsModositas(current) {
+        let meccsSzerkeszteseForm = document.querySelector("#meccs-szerkesztese-form");
+
+        meccsSzerkeszteseForm.action = "/meccs-szerkesztes/" + current.dataset.meccsid;
+
+        document.querySelector("#hazai-csapat").innerHTML = current.dataset.hazai;
+        document.querySelector("#vendeg-csapat").innerHTML = current.dataset.vendeg;
+
+    }
+
+    function meccsTorles(current) {
+        let meccsTorleseForm = document.querySelector("#meccs-torlese-form");
+
+        meccsTorleseForm.action = "/meccs-torles/" + current.dataset.meccsid;
+
+    }
+</script>

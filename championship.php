@@ -15,6 +15,7 @@ function championshipHandler($urlParams)
     $activeTips = getAllActiveTips($pdo, $urlParams["championshipId"]);
     $owngivenTips = getOwnGivenTips($pdo, $urlParams["championshipId"]);
     $othersGivenTips = getOthersGivenTips($pdo, $urlParams["championshipId"]);
+    $teams = getAllTeams($pdo);
     // echo "<pre>";
     // var_dump($players);
  
@@ -28,7 +29,9 @@ function championshipHandler($urlParams)
             "players" => $players,
             "activeTips" => $activeTips,
             "ownGivenTips" => $owngivenTips,
-            "othersGivenTips" => $othersGivenTips
+            "othersGivenTips" => $othersGivenTips,
+            "teams" => $teams
+
         ]),
     ]);
 }

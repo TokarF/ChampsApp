@@ -1,7 +1,33 @@
 <?php
 
 
-function tipsHandler()
+// function tipsHandler()
+// {
+//     $pdo = getConnection();
+
+//     if (!isLoggedIn()) {
+//         echo render("wrapper.phtml", [
+//             "content" => render("loginForm.phtml")
+//         ]);
+//         return;
+//     }
+
+//     // Ha egy órán belül van a meccs kezdése, akkor ne lehessen tippet leadni
+//     foreach ($_POST["meccs-id"] as $i => $meccs) {
+//         if (strtotime($_POST["kezdes"][$i]) - 3600 > time()) {
+//             $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = :jatekosId");
+//             $stmt->execute([
+//                 ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
+//                 ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
+//                 ":meccsId" => $_POST["meccs-id"][$i],
+//                 ":jatekosId" => (int)$_SESSION["userId"]
+//             ]);
+//         }
+//     }
+//     header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
+// }
+
+function tipHandler($urlParams)
 {
     $pdo = getConnection();
 
@@ -13,17 +39,14 @@ function tipsHandler()
     }
 
     // Ha egy órán belül van a meccs kezdése, akkor ne lehessen tippet leadni
-    foreach ($_POST["meccs-id"] as $i => $meccs) {
-        if (strtotime($_POST["kezdes"][$i]) - 3600 > time()) {
-            $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = :jatekosId");
+        if (strtotime($_POST["kezdes"]) - 3600 > time()) {
+            $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE id = :tipId");
             $stmt->execute([
-                ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
-                ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
-                ":meccsId" => $_POST["meccs-id"][$i],
-                ":jatekosId" => (int)$_SESSION["userId"]
+                ":hazaiEredmeny" => $_POST["hazai-eredmeny"],
+                ":vendegEredmeny" => $_POST["vendeg-eredmeny"],
+                ":tipId" => $urlParams["tipId"]
             ]);
         }
-    }
     header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
 }
 
