@@ -38,6 +38,10 @@ $routes = [
     ['GET', '/login', 'loginFormHandler'],
     ['POST', '/login', 'loginHandler'],
     ['POST', '/logout', 'logoutHandler'],
+
+
+    // AJAX
+    ['GET', '/tippek-ajax/{championshipId}', 'tipHandlerAjax']
 ];
 
 // Útvonalválasztó inicializálása

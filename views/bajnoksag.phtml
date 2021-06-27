@@ -239,10 +239,9 @@
         <div class="tab-pane fade show active" id="aktiv-tippek" role="tabpanel" aria-labelledby="pills-home-tab">
             <?php if (count($params["activeTips"]) > 0) : ?>
                 <div class="container mt-5">
-                    <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
-                    <div id="meccsek" class="">
+                    <div id="aktiv-tippek" class="">
                         <?php foreach ($params["activeTips"] as $tip) : ?>
-                            <form method="POST" action="/tipp-leadasa/<?= $tip["id"] ?>">
+                            <form onsubmit="event.preventDefault();tippLeadasa(this)" class="tipp-leadas-form" method="POST" data-tipid="<?= $tip["id"] ?>">
                                 <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
                                 <div class="form-group row">
                                     <div class="col-lg-2 mb-3">
@@ -269,7 +268,7 @@
         </div>
         <div class="tab-pane fade" id="sajat-tippek" role="tabpanel" aria-labelledby="pills-profile-tab">
             <div class="table-responsive rounded-3 shadow-sm border-secondary">
-                <table class="table table-bordered border-secondary table-dark">
+                <table id="sajat-tippek-tabla" class="table table-bordered border-secondary table-dark">
                     <thead class="text-center">
                         <tr class="">
                             <th class="bg-secondary">#</th>
@@ -281,12 +280,15 @@
                     <tbody class="text-center">
                         <?php foreach ($params["ownGivenTips"] as $givenTip) : ?>
                             <tr class="">
-                                <td><?= $givenTip["Id"] ?></td>
+                                <td><?= $givenTip["meccsId"] ?></td>
                                 <td><?= $givenTip["meccs"] ?></td>
                                 <td><?= $givenTip["tipp"] ?></td>
                                 <td>
                                     <?php if ($givenTip["lejatszott"] == 0) : ?>
-                                        <form class="d-inline" action="/tipp-torles/<?= $givenTip["tippId"] ?>" method="POST"><button class="btn btn-outline-danger" href=""><i class="fas fa-times"></i></a></form>
+                                        <form onsubmit="event.preventDefault();tippTorlese(this)" class="d-inline" data-tipid="<?= $tip["id"] ?>">
+                                        <input type="hidden" name="bajnoksag-id" value="<?= $params["championship"]["id"] ?>">
+                                            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-times"></i></button>
+                                        </form>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -376,68 +378,5 @@
     </div>
 </div>
 
+<script src="/public/js/app.js"></script>
 
-
-<script>
-    let ujMeccs = document.querySelector("#uj-meccs");
-    let meccsek = document.querySelector("#meccsek");
-
-    let ujMeccsSor = `
-                    <div class="meccs">
-                        <div class="mb-3">
-                            <label for="recipient-name" class="col-form-label fw-bold">Hazai:</label>
-                            <select name="hazai[]" class="form-select bg-secondary text-white" required>
-                                <option value="" selected disabled>Kérem válasszon</option>
-                                <?php foreach ($params["teams"] as $team) : ?>
-                                    <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="vendeg" class="col-form-label fw-bold">Vendég:</label>
-                            <select name="vendeg[]" class="form-select bg-secondary text-white" required>
-                                <option value="" selected disabled>Kérem válasszon</option>
-                                <?php foreach ($params["teams"] as $team) : ?>
-                                    <option value="<?= $team["id"] ?>"><?= $team["nev"] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="vendeg" class="col-form-label fw-bold">Csoport:</label>
-                            <input name="csoport[]" type="text" class="form-control bg-secondary text-white" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="kezdes" class="col-form-label fw-bold">Kezdés:</label>
-                            <input name="kezdes[]" type="datetime-local" class="form-control bg-secondary text-white" required>
-                        </div>
-                        <div class="mb-3 d-grid">
-                            <button onclick="deleteRow(this)"  class="btn btn-block btn-outline-danger"><span class="p-2"><i class="fas fa-times"></i></span> Törlés</button>
-                        </div>
-                    </div>
-        `;
-
-    ujMeccs.addEventListener("click", () => {
-        meccsek.insertAdjacentHTML("beforeend", ujMeccsSor);
-    })
-
-    function deleteRow(current) {
-        current.closest(".meccs").remove();
-    }
-
-    function meccsModositas(current) {
-        let meccsSzerkeszteseForm = document.querySelector("#meccs-szerkesztese-form");
-
-        meccsSzerkeszteseForm.action = "/meccs-szerkesztes/" + current.dataset.meccsid;
-
-        document.querySelector("#hazai-csapat").innerHTML = current.dataset.hazai;
-        document.querySelector("#vendeg-csapat").innerHTML = current.dataset.vendeg;
-
-    }
-
-    function meccsTorles(current) {
-        let meccsTorleseForm = document.querySelector("#meccs-torlese-form");
-
-        meccsTorleseForm.action = "/meccs-torles/" + current.dataset.meccsid;
-
-    }
-</script>

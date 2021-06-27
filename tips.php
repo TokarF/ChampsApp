@@ -1,34 +1,18 @@
 <?php
 
 
-// function tipsHandler()
-// {
-//     $pdo = getConnection();
+function tipHandlerAjax($urlParams)
+{
+    session_start();
+    $pdo = getConnection();
+    $activeTips = json_encode(getAllActiveTips($pdo, $urlParams["championshipId"]));
+    echo $activeTips;
 
-//     if (!isLoggedIn()) {
-//         echo render("wrapper.phtml", [
-//             "content" => render("loginForm.phtml")
-//         ]);
-//         return;
-//     }
-
-//     // Ha egy órán belül van a meccs kezdése, akkor ne lehessen tippet leadni
-//     foreach ($_POST["meccs-id"] as $i => $meccs) {
-//         if (strtotime($_POST["kezdes"][$i]) - 3600 > time()) {
-//             $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = :hazaiEredmeny, vendegEredmeny = :vendegEredmeny WHERE meccsId = :meccsId AND jatekosId = :jatekosId");
-//             $stmt->execute([
-//                 ":hazaiEredmeny" => $_POST["hazai-eredmeny"][$i],
-//                 ":vendegEredmeny" => $_POST["vendeg-eredmeny"][$i],
-//                 ":meccsId" => $_POST["meccs-id"][$i],
-//                 ":jatekosId" => (int)$_SESSION["userId"]
-//             ]);
-//         }
-//     }
-//     header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
-// }
+}
 
 function tipHandler($urlParams)
 {
+
     $pdo = getConnection();
 
     if (!isLoggedIn()) {
@@ -47,18 +31,39 @@ function tipHandler($urlParams)
                 ":tipId" => $urlParams["tipId"]
             ]);
         }
-    header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
+
+    $activeTips = getAllActiveTips($pdo, $_POST["bajnoksag-id"]);
+    $givenTips = getOwnGivenTips($pdo, $_POST["bajnoksag-id"]);
+
+    echo json_encode( array (
+        'activeTips' => $activeTips,
+        'givenTips' => $givenTips
+        )
+    );
+    // header("Location: /bajnoksag/" . $_POST["bajnoksag-id"]);
 }
 
 
 function tipDeleteHandler($urlParams)
 {
+    session_start();
+
     $pdo = getConnection();
 
     $stmt = $pdo->prepare("UPDATE tippek SET hazaiEredmeny = NULL, vendegEredmeny = NULL WHERE id = :id");
     $stmt->execute([":id" => $urlParams["tipId"]]);
 
-    header("Location: {$_SERVER["HTTP_REFERER"]}");
+    // header("Location: {$_SERVER["HTTP_REFERER"]}");
+
+    
+    $activeTips = getAllActiveTips($pdo, $_POST["bajnoksag-id"]);
+    $givenTips = getOwnGivenTips($pdo, $_POST["bajnoksag-id"]);
+
+    echo json_encode( array (
+        'activeTips' => $activeTips,
+        'givenTips' => $givenTips
+        )
+    );
 }
 
 function getAllTipsByChampionshipIdAndPlayerId($pdo, $championshipId, $playerId)
@@ -106,7 +111,8 @@ function getPointsByPlayerId($pdo, $championshipId, $playerId)
 
 function getAllActiveTips($pdo, $championshipId)
 {
-    $stmt = $pdo->prepare("SELECT T.*, M.Id, M.kezdes, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
+
+    $stmt = $pdo->prepare("SELECT T.*, M.Id AS meccsId, M.kezdes, CS.nev AS hazai, CSA.nev AS vendeg FROM meccsek M
         JOIN tippek T ON T.meccsId = M.Id
         JOIN csapatok CS ON CS.id = M.hazaiCsapatId
         JOIN csapatok CSA ON CSA.id = M.vendegCsapatId
@@ -130,11 +136,12 @@ function getOwnGivenTips($pdo, $championshipId)
 {
     $stmt = $pdo->prepare(
         "SELECT 
-            M.Id, 
+            M.Id AS meccsId, 
             CONCAT(CS.nev, ' - ', CSA.nev) AS meccs,
             CONCAT(T.hazaiEredmeny, ' - ', T.vendegEredmeny) AS tipp, 
             M.lejatszott,
-            T.id as tippId
+            T.id,
+            T.bajnoksagId
             FROM meccsek M
             JOIN tippek T ON T.meccsId = M.Id
             JOIN csapatok CS ON CS.id = M.hazaiCsapatId
